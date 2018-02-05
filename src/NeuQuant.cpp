@@ -22,6 +22,9 @@
 
 #include <cstdint>
 #include "NeuQuant.h"
+#include "GifEncoder.h"
+
+using namespace blk;
 
 // For 256 colours, fixed arrays need 8kb, plus space for the image
 #define netsize                    256           // number of colours used
@@ -79,12 +82,12 @@ static int bias[netsize];                        // bias and freq arrays for lea
 static int freq[netsize];                        // frequency array for learning
 static int radpower[initrad];                    // radpower for precomputation
 
-int getNetwork(int i, int j) {
+int NeuQuant::getNetwork(int i, int j) {
     return network[i][j];
 }
 
 /* Initialise network in range (0,0,0) to (255,255,255) and set parameters */
-void initnet(unsigned char *thepic, int len, int sample) {
+void NeuQuant::initnet(unsigned char *thepic, int len, int sample) {
     int i;
     int *p;
 
@@ -101,7 +104,7 @@ void initnet(unsigned char *thepic, int len, int sample) {
 }
 
 /* Unbias network to give byte values 0..255 and record position i to prepare for sort */
-void unbiasnet() {
+void NeuQuant::unbiasnet() {
     int i, j, temp;
 
     for (i = 0; i < netsize; i++) {
@@ -117,22 +120,24 @@ void unbiasnet() {
 }
 
 /* Output colour dither */
-int getColourMap(uint8_t *colorPalette) {
+int NeuQuant::getColourMap(RGB out[]) {
     int index[netsize];
     for (int i = 0; i < netsize; i++) {
         index[network[i][3]] = i;
     }
     int k = 0;
     for (int j : index) {
-        colorPalette[k++] = network[j][0];
-        colorPalette[k++] = network[j][1];
-        colorPalette[k++] = network[j][2];
+        out[k].r = static_cast<uint8_t>(network[j][0]);
+        out[k].g = static_cast<uint8_t>(network[j][1]);
+        out[k].b = static_cast<uint8_t>(network[j][2]);
+        out[k].index = static_cast<uint8_t>(k);
+        k++;
     }
-    return k / 3;
+    return k;
 }
 
 /* Insertion sort of network and building of netindex[0..255] (to do after unbias) */
-void inxbuild() {
+void NeuQuant::inxbuild() {
     int i, j, smallpos, smallval;
     int *p, *q;
     int previouscol, startpos;
@@ -180,7 +185,7 @@ void inxbuild() {
 }
 
 /* Search for BGR values 0..255 (after net is unbiased) and return colour index */
-int inxsearch(int b, int g, int r) {
+int NeuQuant::inxsearch(int b, int g, int r) {
     int i, j, dist, a, bestd;
     int *p;
     int best;
@@ -355,7 +360,7 @@ void alterneigh(int rad, int i, int b, int g, int r) {
 }
 
 /* Main Learning Loop */
-void learn() {
+void NeuQuant::learn() {
     int i, j, b, g, r;
     int radius, rad, alpha, step, delta, samplepixels;
     unsigned char *p;

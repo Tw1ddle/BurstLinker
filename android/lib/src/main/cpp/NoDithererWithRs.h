@@ -1,18 +1,19 @@
 //
-// Created by succlz123 on 2017/11/15.
+// Created by succlz123 on 2017/10/5.
 //
 
-#ifndef BURSTLINKER_BAYERDITHERERWITHRS_H
-#define BURSTLINKER_BAYERDITHERERWITHRS_H
+#ifndef BURSTLINKER_DISABLEDITHERERWITHRS_H
+#define BURSTLINKER_DISABLEDITHERERWITHRS_H
 
 #include "../../../../../src/Ditherer.h"
 #include "DithererWithRs.h"
 #include <RenderScript.h>
+#include <vector>
 
 using namespace android::RSC;
 using namespace std;
 
-class BayerDithererWithRs : public DithererWithRs {
+class NoDithererWithRs : public DithererWithRs {
 
 public:
 
@@ -23,4 +24,4 @@ public:
 };
 
 
-#endif //BURSTLINKER_BAYERDITHERERWITHRS_H
+#endif //BURSTLINKER_DISABLEDITHERERWITHRS_H

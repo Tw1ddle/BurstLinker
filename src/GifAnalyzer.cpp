@@ -9,8 +9,9 @@
 #include "GifLogger.h"
 
 using namespace std;
+using namespace blk;
 
-const size_t BUF_SIZE = 1024;
+static const size_t BUF_SIZE = 1024;
 
 void analyzeError() {
     fprintf(stderr, "Parse failed\n");

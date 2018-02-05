@@ -5,26 +5,26 @@
 #ifndef BURSTLINKER_GIFLOGGER_H
 #define BURSTLINKER_GIFLOGGER_H
 
-
 #include <cstdint>
 #include <string>
 #include <sstream>
 
-using namespace std;
+namespace blk {
 
-class GifLogger {
+    class GifLogger {
 
-public:
+    public:
 
-    static void log(bool show, string str);
+        static void log(bool show, std::string str);
 
-    template<typename T>
-    static string toString(T value) {
-        ostringstream os;
-        os << value;
-        return os.str();
-    }
-};
+        template<typename T>
+        static std::string toString(T value) {
+            std::ostringstream os;
+            os << value;
+            return os.str();
+        }
+    };
 
+}
 
 #endif //BURSTLINKER_GIFLOGGER_H

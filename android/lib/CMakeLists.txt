@@ -41,7 +41,7 @@ add_library( # Sets the name of the library.
              ../../src/GifLogger.cpp
 
              ../../src/Ditherer.cpp
-             ../../src/DisableDitherer.cpp
+             ../../src/NoDitherer.cpp
              ../../src/BayerDitherer.cpp
              ../../src/M2Ditherer.cpp
              ../../src/FloydSteinbergDitherer.cpp
@@ -98,4 +98,4 @@ add_definitions (-Wno-delete-non-virtual-dtor)
 # add_definitions (-D__Android__)
 
 add_definitions (-D__AndroidLog__)
-add_definitions (-D__Other__)
+add_definitions (-D__SIMD__)

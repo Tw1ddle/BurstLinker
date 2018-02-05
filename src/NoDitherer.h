@@ -1,15 +1,15 @@
 //
-// Created by succlz123 on 17-9-19.
+// Created by succlz123 on 2017/11/15.
 //
 
-#ifndef BURSTLINKER_FLOYDSTEINBERGDITHERER_H
-#define BURSTLINKER_FLOYDSTEINBERGDITHERER_H
+#ifndef BURSTLINKER_NODITHERER_H
+#define BURSTLINKER_NODITHERER_H
 
 #include "Ditherer.h"
 
 namespace blk {
 
-    class FloydSteinbergDitherer : public Ditherer {
+    class NoDitherer : public Ditherer {
 
     public:
 
@@ -22,4 +22,4 @@ namespace blk {
 
 }
 
-#endif //BURSTLINKER_FLOYDSTEINBERGDITHERER_H
+#endif //BURSTLINKER_NODITHERER_H

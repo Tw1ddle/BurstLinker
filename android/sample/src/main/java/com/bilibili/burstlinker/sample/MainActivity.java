@@ -12,6 +12,7 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.TextureView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView mDisplayImg;
     private TextView mTimeTv;
+    private TextView mEncodeTv;
     private String mFilePath;
     private String mText;
 
@@ -40,14 +42,15 @@ public class MainActivity extends AppCompatActivity {
 
         mTimeTv = findViewById(R.id.time);
         mDisplayImg = findViewById(R.id.display);
-        TextView textView = findViewById(R.id.text);
+        mEncodeTv = findViewById(R.id.text);
 
         String dstFile = "result.gif";
         mFilePath = getExternalCacheDir() + File.separator + dstFile;
 
-        textView.setOnClickListener(v -> new Thread(() -> {
-            encodeGIF();
-        }).start());
+        mEncodeTv.setOnClickListener(v -> {
+            mEncodeTv.setEnabled(false);
+            new Thread(this::encodeGIF).start();
+        });
     }
 
     private void encodeGIF() {
@@ -59,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         int size = 0;
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        final int delayMs = 100;
+        final int delayMs = 1000;
         final BurstLinker burstLinker = new BurstLinker();
 
         Exception exception = null;
@@ -72,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 bitmaps.add(bitmap);
                 size = bitmaps.size();
                 burstLinker.connectArray(bitmaps, BurstLinker.OCTREE_QUANTIZER,
-                        BurstLinker.DISABLE_DITHER, 0, 0, delayMs);
+                        BurstLinker.NO_DITHER, 0, 0, delayMs);
             } else {
                 Bitmap colorBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                 Canvas canvas = new Canvas(colorBitmap);
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     canvas.drawRect(0, 0, width, height, p);
                     size++;
                     burstLinker.connect(colorBitmap, BurstLinker.OCTREE_QUANTIZER,
-                            BurstLinker.DISABLE_DITHER, 0, 0, delayMs);
+                            BurstLinker.NO_DITHER, 0, 0, delayMs);
                 }
             }
         } catch (GifEncodeException e) {
@@ -110,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         }
         runOnUiThread(() -> {
             mTimeTv.setText(mText);
+            mEncodeTv.setEnabled(true);
         });
     }
 

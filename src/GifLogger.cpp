@@ -9,7 +9,7 @@
 
 #include "GifLogger.h"
 
-#if defined(__Android__) || defined(__AndroidLog__)
+#if defined(__RenderScript__) || defined(__AndroidLog__)
 
 #include  <android/log.h>
 
@@ -21,11 +21,10 @@
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN   , LOG_TAG,__VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR  , LOG_TAG,__VA_ARGS__)
 
-#elif defined(__Other__)
-
 #endif
 
 using namespace std;
+using namespace blk;
 
 long long currentTime = 0;
 
@@ -48,9 +47,9 @@ void GifLogger::log(bool show, string str) {
     if (currentTime == 0) {
         diff = 0;
     }
-#if defined(__Android__) || defined(__AndroidLog__)
+#if defined(__RenderScript__) || defined(__AndroidLog__)
     LOGI("%s time : %dms", str.c_str(), diff);
-#elif defined(__Other__)
+#else
     cout << str << " - time " << diff << "ms" << endl;
 #endif
     currentTime = currentTimeMillis();

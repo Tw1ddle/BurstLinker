@@ -8,6 +8,7 @@
 #include "BurstLinker.h"
 
 using namespace std;
+using namespace blk;
 
 long long currentTimeMs() {
     chrono::time_point<chrono::system_clock, chrono::milliseconds> tp = chrono::time_point_cast<chrono::milliseconds>(
@@ -25,96 +26,46 @@ void releaseImage(fipImage image, bool deInitialise) {
     }
 }
 
-void addImage(const char *fileName, uint32_t width, uint32_t height, BurstLinker &burstLinker) {
-    uint32_t imageSize = width * height;
-    if (imageSize < width || imageSize < height) {
-        return;
-    }
-    fipImage processImage;
-    processImage.load(fileName);
-    size_t processWidth = processImage.getWidth();
-    size_t processHeight = processImage.getHeight();
-    if (processWidth != width || processHeight != height) {
-        cout << "Image is not the same width or height" << endl;
-        return;
-    }
-    auto imagePixel = new uint32_t[imageSize];
-    memset(imagePixel, 0, imageSize * sizeof(uint32_t));
-    uint32_t pixelIndex = 0;
-    RGBQUAD color{};
-    for (uint32_t i = 0; i < height; i++) {
-        for (uint32_t j = 0; j < width; j++) {
-            processImage.getPixelColor(j, height - 1 - i, &color);
-            int r = color.rgbRed & 0xFF;
-            int g = color.rgbGreen & 0xFF;
-            int b = color.rgbBlue & 0xFF;
-            int bgr = b << 16 | g << 8 | r;
-            imagePixel[pixelIndex++] = static_cast<unsigned int>(bgr);
-        }
-    }
-    releaseImage(processImage, false);
-    burstLinker.connect(imagePixel, 100, static_cast<QuantizerType>(4), static_cast<DitherType>(0), 1.0f, 0, 0);
-}
-
-void addImage(int r, int g, int b, uint32_t width, uint32_t height, BurstLinker &burstLinker) {
-    uint32_t imageSize = width * height;
-    if (imageSize < width || imageSize < height) {
-        return;
-    }
-    auto *imagePixel = new uint32_t[imageSize];
-    memset(imagePixel, 0, imageSize * sizeof(uint32_t));
-    int pixelIndex = 0;
-    for (uint32_t i = 0; i < width; i++) {
-        for (uint32_t j = 0; j < height; j++) {
-            int rgb = b << 16 | g << 8 | r;
-            imagePixel[pixelIndex++] = static_cast<unsigned int>(rgb);
-        }
-    }
-    burstLinker.connect(imagePixel, 100, static_cast<QuantizerType>(4), static_cast<DitherType>(0), 1.0f, 0, 0);
-}
-
 int main(int argc, char *argv[]) {
-//    const char *fileName = "../../android/sample/src/main/res/drawable-nodpi/tcr.jpg";
-
-    QuantizerType quantizerType = Octree;
-    DitherType ditherType = Disable;
-    int delay;
+    QuantizerType quantizerType = QuantizerType::Octree;
+    DitherType ditherType = DitherType::NO;
+    int delay = 0;
     const char *fileName = nullptr;
 
     int startPosition = 1;
     if (argc > 1) {
         char *qt = argv[startPosition];
         if (!strcmp(qt, "-q0")) {
-            quantizerType = Uniform;
+            quantizerType = QuantizerType::Uniform;
             startPosition++;
         } else if (!strcmp(qt, "-q1")) {
-            quantizerType = MedianCut;
+            quantizerType = QuantizerType::MedianCut;
             startPosition++;
         } else if (!strcmp(qt, "-q2")) {
-            quantizerType = KMeans;
+            quantizerType = QuantizerType::KMeans;
             startPosition++;
         } else if (!strcmp(qt, "-q3")) {
-            quantizerType = Random;
+            quantizerType = QuantizerType::Random;
             startPosition++;
         } else if (!strcmp(qt, "-q4")) {
-            quantizerType = Octree;
+            quantizerType = QuantizerType::Octree;
             startPosition++;
         } else if (!strcmp(qt, "-q5")) {
-            quantizerType = NeuQuant;
+            quantizerType = QuantizerType::NeuQuant;
             startPosition++;
         }
         char *dt = argv[startPosition];
         if (!strcmp(dt, "-d0")) {
-            ditherType = Disable;
+            ditherType = DitherType::NO;
             startPosition++;
         } else if (!strcmp(dt, "-d1")) {
-            ditherType = M2;
+            ditherType = DitherType::M2;
             startPosition++;
         } else if (!strcmp(dt, "-d2")) {
-            ditherType = Bayer;
+            ditherType = DitherType::Bayer;
             startPosition++;
         } else if (!strcmp(dt, "-d3")) {
-            ditherType = FloydSteinberg;
+            ditherType = DitherType::FloydSteinberg;
             startPosition++;
         }
         delay = atol(argv[startPosition]);
@@ -144,10 +95,10 @@ int main(int argc, char *argv[]) {
         releaseImage(image, true);
         return 0;
     }
-    auto *burstLinker = new BurstLinker();
-    if (!burstLinker->init("out.gif", width, height, 0, 4)) {
+
+    BurstLinker burstLinker;
+    if (!burstLinker.init("out.gif", width, height, 0, 4)) {
         cout << "GifEncoder init fail" << endl;
-        delete burstLinker;
         releaseImage(image, true);
         return 0;
     }
@@ -155,10 +106,6 @@ int main(int argc, char *argv[]) {
 
     long long currentTime = currentTimeMs();
     cout << "Start" << endl;
-
-    // Test
-//    addImage(fileName, width, height, *burstLinker);
-//    addImage(255, 255, 255, width, height, *burstLinker);
 
     vector<uint32_t *> imagePixels;
     for (int i = startPosition; i < argc; ++i) {
@@ -172,12 +119,12 @@ int main(int argc, char *argv[]) {
             releaseImage(processImage, true);
             return 0;
         }
-        auto *imagePixel = new uint32_t[imageSize];
         if (imageSize < width || imageSize < height) {
             cout << "C6386" << endl;
             releaseImage(processImage, true);
             return 0;
         }
+        auto *imagePixel = new uint32_t[imageSize];
         memset(imagePixel, 0, imageSize * sizeof(uint32_t));
         int pixelIndex = 0;
         RGBQUAD color{};
@@ -196,16 +143,13 @@ int main(int argc, char *argv[]) {
         imagePixels.emplace_back(imagePixel);
     }
 
-    burstLinker->connect(imagePixels, delay, quantizerType, ditherType, 1.0f, 0, 0);
+    burstLinker.connect(imagePixels, delay, quantizerType, ditherType, 0, 0);
 
     long long diff = currentTimeMs() - currentTime;
     cout << "End " << diff << "ms" << endl;
 
-    burstLinker->release();
-    delete burstLinker;
-
+    burstLinker.release();
     releaseImage(image, true);
-//    burstLinker->analyzerGifInfo("out.gif");
 
     return 0;
 }
