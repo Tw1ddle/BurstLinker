@@ -3,8 +3,12 @@
 //
 
 #include <iostream>
-#include <FreeImagePlus.h>
 #include "../src/BurstLinker.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "../thirdpart/stb_image.h"
+
 
 using namespace std;
 using namespace blk;
@@ -17,42 +21,43 @@ long long currentTimeMs() {
     return timestamp;
 }
 
-void releaseImage(fipImage image, bool deInitialise) {
-    image.clear();
-    FreeImage_Unload(image);
-    if (deInitialise) {
-        FreeImage_DeInitialise();
-    }
-}
-
 void addImage(const char *fileName, uint32_t width, uint32_t height, int delay, BurstLinker &burstLinker,
               QuantizerType quantizerType, DitherType ditherType) {
     uint32_t imageSize = width * height;
     if (imageSize < width || imageSize < height) {
         return;
     }
-    fipImage processImage;
-    processImage.load(fileName);
-    size_t processWidth = processImage.getWidth();
-    size_t processHeight = processImage.getHeight();
-    if (processWidth != width || processHeight != height) {
+    int w, h, n;
+    unsigned char *data = stbi_load(fileName, &w, &h, &n, 0);
+    if (w != width || h != height) {
         cout << "Image is not the same width or height" << endl;
         return;
     }
     auto imagePixel = new uint32_t[imageSize];
+    uint32_t index = 0;
     uint32_t pixelIndex = 0;
-    RGBQUAD color{};
+    int r = 0;
+    int g = 0;
+    int b = 0;
     for (uint32_t i = 0; i < height; i++) {
         for (uint32_t j = 0; j < width; j++) {
-            processImage.getPixelColor(j, height - 1 - i, &color);
-            int r = color.rgbRed & 0xFF;
-            int g = color.rgbGreen & 0xFF;
-            int b = color.rgbBlue & 0xFF;
+            if (n == 3) {
+                r = data[index++];
+                g = data[index++];
+                b = data[index++];
+            } else if (n == 4) {
+                r = data[index++];
+                g = data[index++];
+                b = data[index++];
+                index++;
+            } else {
+                return;
+            }
             int bgr = b << 16 | g << 8 | r;
             imagePixel[pixelIndex++] = static_cast<uint32_t>(bgr);
         }
     }
-    releaseImage(processImage, false);
+    stbi_image_free(data);
     burstLinker.connect(imagePixel, delay, quantizerType, ditherType, 0, 0);
 }
 
@@ -77,27 +82,25 @@ addImage(int r, int g, int b, uint32_t width, uint32_t height, int delay, BurstL
 int main(int argc, char *argv[]) {
     const char *fileName = "1.jpg";
 
-    fipImage image;
-    BOOL loadSuccess = image.load(fileName);
-    if (!loadSuccess) {
+    int width, height, n;
+    unsigned char *data = stbi_load("1.jpg", &width, &height, &n, 0);
+
+    if (!data) {
         cout << "Image load failed" << endl;
-        releaseImage(image, true);
+        stbi_image_free(data);
         return 0;
     }
-    uint32_t width = image.getWidth();
-    uint32_t height = image.getHeight();
-    uint32_t imageSize = width * height;
+    int imageSize = width * height;
     if (width >= 65536 || height >= 65536) {
         cout << "Image is too large " << imageSize << endl;
-        releaseImage(image, true);
+        stbi_image_free(data);
         return 0;
     }
-    releaseImage(image, false);
 
     BurstLinker burstLinker;
     if (!burstLinker.init("out.gif", width, height, 0, 4)) {
         cout << "GifEncoder init fail" << endl;
-        releaseImage(image, true);
+        stbi_image_free(data);
         return 0;
     }
 
@@ -187,7 +190,7 @@ int main(int argc, char *argv[]) {
 
     burstLinker.release();
 
-    releaseImage(image, true);
+    stbi_image_free(data);
 //    burstLinker.analyzerGifInfo("out.gif");
 
     return 0;

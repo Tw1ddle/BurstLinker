@@ -3,9 +3,11 @@
 //
 
 #include <iostream>
-#include <FreeImagePlus.h>
-#include <cstring>
 #include "BurstLinker.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "../thirdpart/stb_image.h"
 
 using namespace std;
 using namespace blk;
@@ -16,14 +18,6 @@ long long currentTimeMs() {
     auto tmp = chrono::duration_cast<chrono::milliseconds>(tp.time_since_epoch());
     auto timestamp = tmp.count();
     return timestamp;
-}
-
-void releaseImage(fipImage image, bool deInitialise) {
-    image.clear();
-    FreeImage_Unload(image);
-    if (deInitialise) {
-        FreeImage_DeInitialise();
-    }
 }
 
 int main(int argc, char *argv[]) {
@@ -80,29 +74,26 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    fipImage image;
-    BOOL loadSuccess = image.load(fileName);
-    if (!loadSuccess) {
+    int width, height, n;
+    unsigned char *data = stbi_load(fileName, &width, &height, &n, 0);
+    if (!data) {
         cout << "Image load failed" << endl;
-        releaseImage(image, true);
+        stbi_image_free(data);
         return 0;
     }
-    uint32_t width = image.getWidth();
-    uint32_t height = image.getHeight();
-    uint32_t imageSize = width * height;
+    int imageSize = width * height;
     if (width >= 65536 || height >= 65536) {
         cout << "Image is too large " << width * height << endl;
-        releaseImage(image, true);
+        stbi_image_free(data);
         return 0;
     }
 
     BurstLinker burstLinker;
     if (!burstLinker.init("out.gif", width, height, 0, 4)) {
         cout << "GifEncoder init fail" << endl;
-        releaseImage(image, true);
+        stbi_image_free(data);
         return 0;
     }
-    releaseImage(image, false);
 
     long long currentTime = currentTimeMs();
     cout << "Start" << endl;
@@ -110,36 +101,50 @@ int main(int argc, char *argv[]) {
     vector<uint32_t *> imagePixels;
     for (int i = startPosition; i < argc; ++i) {
         const char *processFileName = argv[i];
-        fipImage processImage;
-        processImage.load(processFileName);
-        size_t processWidth = processImage.getWidth();
-        size_t processHeight = processImage.getHeight();
+        int processWidth, processHeight, processN;
+        unsigned char *processImage = stbi_load(processFileName, &processWidth, &processHeight, &processN, 0);
+        if (!processImage) {
+            cout << "Image load failed " << processFileName << endl;
+            stbi_image_free(processImage);
+            return 0;
+        }
         if (processWidth != width || processHeight != height) {
-            cout << "Image is not the same width or height" << endl;
-            releaseImage(processImage, true);
+            cout << "Image is not the same width or height " << processFileName << endl;
+            stbi_image_free(processImage);
             return 0;
         }
         if (imageSize < width || imageSize < height) {
-            cout << "C6386" << endl;
-            releaseImage(processImage, true);
+            cout << "C6386 " << processFileName << endl;
+            stbi_image_free(processImage);
             return 0;
         }
         auto *imagePixel = new uint32_t[imageSize];
         memset(imagePixel, 0, imageSize * sizeof(uint32_t));
+
         int pixelIndex = 0;
-        RGBQUAD color{};
+        int index = 0;
+        int r = 0;
+        int g = 0;
+        int b = 0;
         for (uint32_t i = 0; i < height; i++) {
             for (uint32_t j = 0; j < width; j++) {
-                processImage.getPixelColor(j, height - 1 - i, &color);
-                int r = color.rgbRed & 0xFF;
-                int g = color.rgbGreen & 0xFF;
-                int b = color.rgbBlue & 0xFF;
+                if (n == 3) {
+                    r = data[index++];
+                    g = data[index++];
+                    b = data[index++];
+                } else if (n == 4) {
+                    r = data[index++];
+                    g = data[index++];
+                    b = data[index++];
+                    index++;
+                } else {
+                    return 0;
+                }
                 int bgr = b << 16 | g << 8 | r;
                 imagePixel[pixelIndex++] = static_cast<uint32_t>(bgr);
             }
         }
-        processImage.clear();
-        FreeImage_Unload(processImage);
+        stbi_image_free(processImage);
         imagePixels.emplace_back(imagePixel);
     }
 
@@ -149,7 +154,7 @@ int main(int argc, char *argv[]) {
     cout << "End " << diff << "ms" << endl;
 
     burstLinker.release();
-    releaseImage(image, true);
+    stbi_image_free(data);
 
     return 0;
 }

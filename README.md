@@ -59,11 +59,11 @@ try {
 
 ## Unix-like platform
 
-1. Install [FreeImage](http://freeimage.sourceforge.net/) & [CMake](http://www.cmake.org/)
-   - Mac  `brew install freeimage cmake`   
-   - Debian `sudo apt-get install libfreeimage-dev cmake`
-   - RedHat  `sudo yum install freeimage-devel cmake`
-   - ArchLinux `sudo pacman -S freeimage cmake`
+1. Install [CMake](http://www.cmake.org/)
+   - Mac  `brew install cmake`   
+   - Debian `sudo apt install cmake`
+   - RedHat  `sudo yum install cmake`
+   - ArchLinux `sudo pacman -S cmake`
 
 2. Build
    - `cd /BurstLinker`
@@ -84,7 +84,7 @@ try {
    - `mkdir cmake-build-debug; cd cmake-build-debug`
    - `cmake ..`
    - Open BurstLinker.sln
-   - Solution Explorer -> BurstLinker -> Build -> INSTALL -> Build
+   - Solution Explorer -> BurstLinker -> Build
 
 3. Run
    - `cd Debug`

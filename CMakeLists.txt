@@ -7,6 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 #file(GLOB SOURCE_FILES *.cpp)
 
 set(srcdir src)
+set(thirdpartdir thirdpart)
 set(exampledir example)
 
 set(SOURCE_FILES
@@ -33,6 +34,8 @@ set(SOURCE_FILES
         ${srcdir}/NeuQuant.cpp ${srcdir}/NeuQuant.h
         ${srcdir}/NeuQuantQuantizer.cpp ${srcdir}/NeuQuantQuantizer.h
         ${srcdir}/BurstLinker.cpp ${srcdir}/BurstLinker.h
+
+        ${thirdpartdir}/stb_image.h
         )
 
 set(BURSTLINKER_FILES
@@ -56,36 +59,10 @@ message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 message(STATUS "PROJECT_SOURCE_DIR:       ${PROJECT_SOURCE_DIR}")
 message(STATUS "PROJECT_BINARY_DIR:       ${PROJECT_BINARY_DIR}")
 
-# find_package(Threads)
-# target_link_libraries(BurstLinker ${CMAKE_THREAD_LIBS_INIT})
-
 IF (CMAKE_SYSTEM MATCHES "Linux")
-    target_link_libraries(BurstLinker freeimageplus)
 
-    target_link_libraries(Example freeimageplus)
-
-    #    find_package(OpenCV REQUIRED)
-    #    target_link_libraries(BurstLinker ${OpenCV_LIBS})
 ELSEIF (CMAKE_SYSTEM MATCHES "Darwin")
-    include_directories(/usr/local/Cellar/freeimage/3.17.0_1/include/)
-    target_link_libraries(BurstLinker /usr/local/Cellar/freeimage/3.17.0_1/lib/libfreeimageplus.3.dylib)
 
-    target_link_libraries(Example /usr/local/Cellar/freeimage/3.17.0_1/lib/libfreeimageplus.3.dylib)
-
-    #set(${OpenCV_INCLUDE_DIRS} /usr/local/Cellar/opencv3/3.2.0/include/)
-    #set(${OpenCV_LIBS} /usr/local/Cellar/opencv3/3.2.0/lib/)
-
-    #    set(OpenCV_DIR /usr/local/Cellar/opencv3/3.2.0/share/OpenCV/)
-    #    find_package(OpenCV REQUIRED)
-    #    target_link_libraries(BurstLinker ${OpenCV_LIBS})
 ELSEIF (CMAKE_SYSTEM MATCHES "Windows")
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../thirdpart/FreeImage/x86/include)
 
-    target_link_libraries(BurstLinker ${CMAKE_CURRENT_SOURCE_DIR}/../thirdpart/FreeImage/x86/lib/FreeImage.lib)
-    target_link_libraries(BurstLinker ${CMAKE_CURRENT_SOURCE_DIR}/../thirdpart/FreeImage/x86/lib/FreeImagePlus.lib)
-
-    target_link_libraries(Example ${CMAKE_CURRENT_SOURCE_DIR}/../thirdpart/FreeImage/x86/lib/FreeImage.lib)
-    target_link_libraries(Example ${CMAKE_CURRENT_SOURCE_DIR}/../thirdpart/FreeImage/x86/lib/FreeImagePlus.lib)
-
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../thirdpart/FreeImage/x86/bin/ DESTINATION "${CMAKE_BINARY_DIR}/Debug")
 ENDIF ()
