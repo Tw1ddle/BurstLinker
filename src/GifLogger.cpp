@@ -48,7 +48,7 @@ void GifLogger::log(bool show, string str) {
         diff = 0;
     }
 #if defined(__RenderScript__) || defined(__AndroidLog__)
-    LOGI("%s time : %dms", str.c_str(), diff);
+    LOGI("%s time : %dms", str.c_str(), (int) diff);
 #else
     cout << str << " - time " << diff << "ms" << endl;
 #endif

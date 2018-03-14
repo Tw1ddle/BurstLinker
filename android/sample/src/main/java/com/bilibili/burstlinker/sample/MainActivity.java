@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         mEncodeTv = findViewById(R.id.text);
 
         String dstFile = "result.gif";
-        mFilePath = getExternalCacheDir() + File.separator + dstFile;
+        mFilePath = getCacheDir() + File.separator + dstFile;
 
         mEncodeTv.setOnClickListener(v -> {
             mEncodeTv.setEnabled(false);

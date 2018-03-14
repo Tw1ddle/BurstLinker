@@ -126,18 +126,19 @@ int main(int argc, char *argv[]) {
         int r = 0;
         int g = 0;
         int b = 0;
-        for (uint32_t i = 0; i < height; i++) {
+        for (uint32_t k = 0; k < height; k++) {
             for (uint32_t j = 0; j < width; j++) {
                 if (n == 3) {
-                    r = data[index++];
-                    g = data[index++];
-                    b = data[index++];
+                    r = processImage[index++];
+                    g = processImage[index++];
+                    b = processImage[index++];
                 } else if (n == 4) {
-                    r = data[index++];
-                    g = data[index++];
-                    b = data[index++];
+                    r = processImage[index++];
+                    g = processImage[index++];
+                    b = processImage[index++];
                     index++;
                 } else {
+					cout << "Unsupported images" << endl;
                     return 0;
                 }
                 int bgr = b << 16 | g << 8 | r;

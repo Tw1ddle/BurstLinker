@@ -4,7 +4,7 @@
 
 Idea from: [square/gifencoder](https://github.com/square/gifencoder)
 
-BurstLinker is a simple C++ GIF encode library. You can easily use it on Android, Windows, Linux or other platforms.
+BurstLinker is a simple C++ GIF encode library.
 
 ## Android platform
 
@@ -26,7 +26,7 @@ NDK r16
 
 ``` java
 int delayMs = 1000;
-String filePath = getExternalCacheDir() + File.separator + "out.gif";
+String filePath = getCacheDir() + File.separator + "out.gif";
 BurstLinker burstLinker = new BurstLinker();
 
 try {
@@ -53,7 +53,7 @@ try {
 > This is an untested experimental feature
 
 1. Git branch `/feature/render-script`
-2. Gradle sync, It will generate the required ScriptC.cpp
+2. Gradle sync, It will generate the required ScriptC_*.cpp
 3. Uncomment the line 64 of the /lib/CMakeLists.txt
 4. Run
 
@@ -61,8 +61,6 @@ try {
 
 1. Install [CMake](http://www.cmake.org/)
    - Mac  `brew install cmake`   
-   - Debian `sudo apt install cmake`
-   - RedHat  `sudo yum install cmake`
    - ArchLinux `sudo pacman -S cmake`
 
 2. Build

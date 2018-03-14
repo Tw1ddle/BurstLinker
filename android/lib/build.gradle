@@ -25,7 +25,7 @@ android {
 //                arguments "-DANDROID_ARM_NEON=TRUE"
 //                arguments "-DANDROID_ABI=armeabi-v7a with NEON"
                 arguments "-DANDROID_STL=gnustl_shared"
-                cppFlags "-std=c++14 -fno-rtti -fexceptions"
+                cppFlags "-std=c++14 -fno-rtti -fno-exceptions"
             }
         }
     }
