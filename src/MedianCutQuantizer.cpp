@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <queue>
 #include <iostream>
+#include <cstring>
 #include "MedianCutQuantizer.h"
 
 using namespace std;

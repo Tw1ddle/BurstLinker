@@ -17,15 +17,15 @@ set(SOURCE_FILES
         ${srcdir}/GifBlockWriter.cpp ${srcdir}/GifBlockWriter.h
         ${srcdir}/KDTree.cpp ${srcdir}/KDTree.h
         ${srcdir}/LzwEncoder.cpp ${srcdir}/LzwEncoder.h
-        ${srcdir}/GifLogger.cpp ${srcdir}/GifLogger.h
+        ${srcdir}/Logger.cpp ${srcdir}/Logger.h
 
-        ${srcdir}/Ditherer.cpp ${srcdir}/Ditherer.h
+        ${srcdir}/Ditherer.h
         ${srcdir}/NoDitherer.cpp ${srcdir}/NoDitherer.h
         ${srcdir}/BayerDitherer.cpp ${srcdir}/BayerDitherer.h
         ${srcdir}/M2Ditherer.cpp ${srcdir}/M2Ditherer.h
         ${srcdir}/FloydSteinbergDitherer.cpp ${srcdir}/FloydSteinbergDitherer.h
 
-        ${srcdir}/ColorQuantizer.cpp ${srcdir}/ColorQuantizer.h
+        ${srcdir}/ColorQuantizer.h
         ${srcdir}/UniformQuantizer.cpp ${srcdir}/UniformQuantizer.h
         ${srcdir}/RandomQuantizer.cpp ${srcdir}/RandomQuantizer.h
         ${srcdir}/MedianCutQuantizer.cpp ${srcdir}/MedianCutQuantizer.h
@@ -60,7 +60,9 @@ message(STATUS "PROJECT_SOURCE_DIR:       ${PROJECT_SOURCE_DIR}")
 message(STATUS "PROJECT_BINARY_DIR:       ${PROJECT_BINARY_DIR}")
 
 IF (CMAKE_SYSTEM MATCHES "Linux")
-
+    find_package(Threads)
+    target_link_libraries(BurstLinker ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(Example ${CMAKE_THREAD_LIBS_INIT})
 ELSEIF (CMAKE_SYSTEM MATCHES "Darwin")
 
 ELSEIF (CMAKE_SYSTEM MATCHES "Windows")

@@ -7,7 +7,7 @@
 #include <ratio>
 #include <chrono>
 
-#include "GifLogger.h"
+#include "Logger.h"
 
 #if defined(__RenderScript__) || defined(__AndroidLog__)
 
@@ -26,9 +26,9 @@
 using namespace std;
 using namespace blk;
 
-long long currentTime = 0;
+static long long currentTime = 0;
 
-long long currentTimeMillis() {
+static long long currentTimeMillis() {
     //struct timeval tv{};
     //gettimeofday(&tv, nullptr);
     //return ((unsigned long long) tv.tv_sec * 1000 + (unsigned long long) tv.tv_usec / 1000);
@@ -39,7 +39,7 @@ long long currentTimeMillis() {
     return timestamp;
 }
 
-void GifLogger::log(bool show, string str) {
+void Logger::log(bool show, string str) {
     if (!show) {
         return;
     }

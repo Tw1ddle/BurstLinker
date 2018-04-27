@@ -11,7 +11,7 @@
 
 namespace blk {
 
-    class GifLogger {
+    class Logger {
 
     public:
 

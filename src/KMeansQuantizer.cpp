@@ -130,7 +130,7 @@ KMeansQuantizer::quantize(RGB *pixels, uint32_t pixelCount, uint32_t maxColorCou
 //        stringstream ss;
 //        ss << "iterateNum: " << iterateNum << " lastCost: " << lastCost << " currCost: " << currCost
 //           << " diff:" << diff;
-//        GifLogger::log(true, ss.str());
+//        Logger::log(true, ss.str());
     }
     resultSize = maxColorCount;
     for (uint32_t l = 0; l < maxColorCount; ++l) {

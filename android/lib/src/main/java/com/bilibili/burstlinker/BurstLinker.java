@@ -14,7 +14,6 @@ import java.util.List;
 public class BurstLinker {
 
     static {
-        System.loadLibrary("gnustl_shared");
         System.loadLibrary("BurstLinker");
     }
 

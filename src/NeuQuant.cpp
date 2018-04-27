@@ -22,65 +22,8 @@
 
 #include <cstdint>
 #include "NeuQuant.h"
-#include "GifEncoder.h"
 
 using namespace blk;
-
-// For 256 colours, fixed arrays need 8kb, plus space for the image
-#define netsize                    256           // number of colours used
-
-/* Four primes near 500 - assume no image has a length so large that it is divisible by all four primes */
-#define prime1                     499
-#define prime2                     491
-#define prime3                     487
-#define prime4                     503
-
-#define minpicturebytes            (3*prime4)    // minimum size for input image
-
-/* Network Definitions */
-#define maxnetpos                  255           // netsize - 1
-#define netbiasshift               4             // bias for colour values
-#define ncycles                    100           // no. of learning cycles
-
-/* Defs for freq and bias */
-#define intbiasshift               16            // bias for fractions
-#define intbias                    65536         // 1 << intbiasshift
-#define gammashift                 10            // gamma = 1024
-#define gamma                      1024          // 1 << gammashift
-#define betashift                  10
-#define beta                       64            // intbias >> betashift beta = 1/1024
-#define betagamma                  65536         // intbias << (gammashift - betashift)
-
-/* Defs for decreasing radius factor */
-#define initrad                    32            // netsize >> 3 for 256 cols, radius starts
-#define radiusbiasshift            6             // at 32.0 biased by 6 bits
-#define radiusbias                 64            // 1 << radiusbiasshift
-#define initradius                 2048          // initrad * radiusbias and decreases by a
-#define radiusdec                  30            // factor of 1/30 each cycle
-
-/* Defs for decreasing alpha factor */
-#define alphabiasshift             10             // alpha starts at 1.0
-#define initalpha                  1024           // 1 << alphabiasshift
-
-/* Radbias and alpharadbias used for radpower calculation */
-#define radbiasshift               8
-#define radbias                    256            // 1 << radbiasshift
-#define alpharadbshift             18             // alphabiasshift + radbiasshift
-#define alpharadbias               262144
-
-int alphadec;                                     // biased by 10 bits
-
-/* Types and Global Variables */
-
-static unsigned char *thepicture;                // the input image itself
-static int lengthcount;                          // lengthcount = H*W*3
-static int samplefac;                            // sampling factor 1..30 */
-typedef int pixel[4];                            // BGRc
-static pixel network[netsize];                   // the network itself
-static int netindex[256];                        // for network lookup - really 256
-static int bias[netsize];                        // bias and freq arrays for learning
-static int freq[netsize];                        // frequency array for learning
-static int radpower[initrad];                    // radpower for precomputation
 
 int NeuQuant::getNetwork(int i, int j) {
     return network[i][j];
@@ -243,7 +186,7 @@ int NeuQuant::inxsearch(int b, int g, int r) {
 }
 
 /* Search for biased BGR values */
-int contest(int b, int g, int r) {
+int NeuQuant::contest(int b, int g, int r) {
     /* finds closest neuron (min dist) and updates freq */
     /* finds best neuron (min dist-bias) and returns position */
     /* for frequently chosen neurons, freq[i] is high and bias[i] is negative */
@@ -295,7 +238,7 @@ int contest(int b, int g, int r) {
 }
 
 /* Move neuron i towards biased (b,g,r) by factor alpha */
-void altersingle(int alpha, int i, int b, int g, int r) {
+void NeuQuant::altersingle(int alpha, int i, int b, int g, int r) {
     int *n;
 
 //	printf("New point %d: ", i);
@@ -312,7 +255,7 @@ void altersingle(int alpha, int i, int b, int g, int r) {
 }
 
 /* Move adjacent neurons by precomputed alpha*(1-((i-j)^2/[r]^2)) in radpower[|i-j|] */
-void alterneigh(int rad, int i, int b, int g, int r) {
+void NeuQuant::alterneigh(int rad, int i, int b, int g, int r) {
     int j, k, lo, hi, a;
     int *p, *q;
 

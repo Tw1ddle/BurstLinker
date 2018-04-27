@@ -7,7 +7,7 @@
 #include <iostream>
 #include "GifEncoder.h"
 #include "GifBlockWriter.h"
-#include "GifLogger.h"
+#include "Logger.h"
 #include "ColorQuantizer.h"
 #include "KMeansQuantizer.h"
 #include "MedianCutQuantizer.h"
@@ -39,7 +39,7 @@ sp<RS> rs = nullptr;
 
 #endif
 
-int getColorTableSizeField(int actualTableSize) {
+static int getColorTableSizeField(int actualTableSize) {
     int size = 0;
     while (1 << (size + 1) < actualTableSize) {
         ++size;
@@ -80,7 +80,7 @@ bool GifEncoder::init(const char *path, uint16_t width, uint16_t height, uint32_
     if (threadCount > 1) {
         threadPool = new ThreadPool(threadCount);
     }
-    GifLogger::log(debugLog, "Image size is " + GifLogger::toString(width * height));
+    Logger::log(debugLog, "Image size is " + Logger::toString(width * height));
     return true;
 }
 
@@ -88,7 +88,7 @@ vector<uint8_t> GifEncoder::addImage(uint32_t *originalColors, uint32_t delay,
                                      QuantizerType quantizerType, DitherType ditherType,
                                      uint16_t left, uint16_t top,
                                      vector<uint8_t> &content) {
-    GifLogger::log(debugLog, "Get image pixel");
+    Logger::log(debugLog, "Get image pixel");
 
     uint32_t pixelCount = screenWidth * screenHeight;
     unique_ptr<ColorQuantizer> colorQuantizer;
@@ -130,7 +130,7 @@ vector<uint8_t> GifEncoder::addImage(uint32_t *originalColors, uint32_t delay,
         quantizerSize = pixelCount;
         memcpy(quantizerPixels, pixels, pixelCount * sizeof(RGB));
     }
-    GifLogger::log(debugLog, quantizerStr + " size is " + GifLogger::toString(quantizerSize));
+    Logger::log(debugLog, quantizerStr + " size is " + Logger::toString(quantizerSize));
 
     if (quantizerSize <= 0) {
         return content;
@@ -236,11 +236,11 @@ vector<uint8_t> GifEncoder::addImage(uint32_t *originalColors, uint32_t delay,
     }
 #endif
 
-    GifLogger::log(debugLog, dithererStr);
+    Logger::log(debugLog, dithererStr);
 
     LzwEncoder lzwEncoder(paddedColorCount);
     lzwEncoder.encode(colorIndices.get(), screenWidth, screenHeight, content);
-    GifLogger::log(debugLog, "LZW encode");
+    Logger::log(debugLog, "LZW encode");
     return content;
 }
 
