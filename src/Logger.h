@@ -15,7 +15,7 @@ namespace blk {
 
     public:
 
-        static void log(bool show, std::string str);
+        static void log(bool show, std::string str) {}
 
         template<typename T>
         static std::string toString(T value) {

@@ -38,19 +38,3 @@ static long long currentTimeMillis() {
     auto timestamp = tmp.count();
     return timestamp;
 }
-
-void Logger::log(bool show, string str) {
-    if (!show) {
-        return;
-    }
-    long long diff = currentTimeMillis() - currentTime;
-    if (currentTime == 0) {
-        diff = 0;
-    }
-#if defined(__RenderScript__) || defined(__AndroidLog__)
-    LOGI("%s time : %dms", str.c_str(), (int) diff);
-#else
-    cout << str << " - time " << diff << "ms" << endl;
-#endif
-    currentTime = currentTimeMillis();
-}
